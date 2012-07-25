@@ -1,0 +1,6 @@
+CHANGELOG for Plupload integration for Drupal 6
+ 
+Plupload integration 6.x-1.x-dev
+================================
+- #1411856 by caiosba: Language files are not loaded
+- #957846 by hlykos: Plupload transliteration support
