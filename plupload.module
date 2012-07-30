@@ -250,6 +250,7 @@ function plupload_pernode() {
  */
 function plupload_imagefield_create_node_from($temp_filepath, $file_name, $options) {
   // Only get files from Drupal's tmp directory.
+
   $directory = file_directory_temp();
   if (file_check_location($temp_filepath, $directory)) {
     // Only get files where we can get some image info.
@@ -325,7 +326,9 @@ function plupload_imagefield_create_node_from($temp_filepath, $file_name, $optio
  */
 function _plupload_imagefield_import_create_node($field, $form_state_values, $file = NULL, $options) {
   global $user;
-
+	$GET = $_GET;
+	unset($GET['q']);
+	
   module_load_include('inc', 'node', 'node.pages');
 
   // Create a basic node object.
@@ -359,6 +362,24 @@ function _plupload_imagefield_import_create_node($field, $form_state_values, $fi
       }
     }
   }
+	
+	foreach ($GET as $key => $value){
+		if (isset($type['fields'][$key])){
+			if ($type['fields'][$key]['type'] == 'nodereference'){
+				$nids = explode('|', $value);
+				$result = array();
+				foreach ($nids as $nid) {
+					$rnode = db_fetch_array((db_query('SELECT type FROM {node} WHERE nid = %d', $nid)));
+					if ($rnode){
+						$result[] = array('nid' => $nid);
+					}else{
+					 drupal_set_message('node ' . $nid . ' inexistant!');
+					}
+				}
+				$node->{$key} = $result;
+			}
+		}
+	}
 
   // Pretend we're saving the node from a node form to please modules like filefield_paths.
   $node->form_id = $node->type .'_node_form';
